@@ -226,8 +226,6 @@ def trimmomatic_log(log_file, sample_id):
 
     log_storage = OrderedDict()
 
-    #log_id = log_file.rstrip("_trimlog.txt")
-
     log_storage[sample_id] = parse_log(log_file)
 
     os.remove(log_file)
