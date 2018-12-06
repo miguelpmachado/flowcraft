@@ -226,9 +226,9 @@ def trimmomatic_log(log_file, sample_id):
 
     log_storage = OrderedDict()
 
-    log_id = log_file.rstrip("_trimlog.txt")
+    #log_id = log_file.rstrip("_trimlog.txt")
 
-    log_storage[log_id] = parse_log(log_file)
+    log_storage[sample_id] = parse_log(log_file)
 
     os.remove(log_file)
 
@@ -274,7 +274,7 @@ def merge_default_adapters():
     with open(filepath, "w") as fh, \
             fileinput.input(default_adapters) as in_fh:
         for line in in_fh:
-            fh.write(line)
+            fh.write("{}{}".format(line, "\\n"))
 
     return filepath
 
@@ -368,12 +368,12 @@ def main(sample_id, fastq_pair, trim_range, trim_opts, phred, adapters_file,
         "MINLEN:{}".format(trim_opts[3]),
         "TOPHRED33",
         "-trimlog",
-        "{}_trimlog.txt".format(sample_id)
+        "/tmp/{}_trimlog.txt".format(sample_id)
     ]
 
     logger.debug("Running trimmomatic subprocess with command: {}".format(cli))
 
-    p = subprocess.Popen(cli, stdout=PIPE, stderr=PIPE)
+    p = subprocess.Popen(" ".join(cli), stdout=PIPE, stderr=PIPE, shell=True)
     stdout, stderr = p.communicate()
 
     # Attempt to decode STDERR output from bytes. If unsuccessful, coerce to
@@ -390,7 +390,7 @@ def main(sample_id, fastq_pair, trim_range, trim_opts, phred, adapters_file,
     logger.info("Finished trimmomatic with return code: {}".format(
         p.returncode))
 
-    trimmomatic_log("{}_trimlog.txt".format(sample_id), sample_id)
+    trimmomatic_log("/tmp/{}_trimlog.txt".format(sample_id), sample_id)
 
     if p.returncode == 0 and os.path.exists("{}_1_trim.fastq.gz".format(
             SAMPLE_ID)):
