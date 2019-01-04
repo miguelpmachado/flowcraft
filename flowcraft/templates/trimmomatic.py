@@ -371,7 +371,7 @@ def main(sample_id, fastq_pair, trim_range, trim_opts, phred, adapters_file,
 
     logger.debug("Running trimmomatic subprocess with command: {}".format(cli))
 
-    p = subprocess.Popen(" ".join(cli), stdout=PIPE, stderr=PIPE, shell=True)
+    p = subprocess.Popen(cli, stdout=PIPE, stderr=PIPE, shell=False)
     stdout, stderr = p.communicate()
 
     # Attempt to decode STDERR output from bytes. If unsuccessful, coerce to
