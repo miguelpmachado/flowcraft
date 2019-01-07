@@ -57,6 +57,7 @@ import re
 import json
 import fileinput
 import subprocess
+import tempfile
 
 from subprocess import PIPE
 from collections import OrderedDict
@@ -228,7 +229,12 @@ def trimmomatic_log(log_file, sample_id):
 
     log_storage[sample_id] = parse_log(log_file)
 
+    #remove temp dir where log file is stored
+    tempdir = os.path.dirname(log_file)
+
     os.remove(log_file)
+
+    os.rmdir(tempdir)
 
     write_report(log_storage, "trimmomatic_report.csv", sample_id)
 
@@ -358,6 +364,9 @@ def main(sample_id, fastq_pair, trim_range, trim_opts, phred, adapters_file,
         "ILLUMINACLIP:{}:3:30:10:6:true".format(adapters_file)
     ]
 
+    #create log file im temporary dir to avoid issues when running on a docker container in macOS
+    logfile = os.path.join(tempfile.mkdtemp(prefix='tmp'), "{}_trimlog.txt".format(sample_id))
+
     # Add trimmomatic options
     cli += [
         "SLIDINGWINDOW:{}".format(trim_opts[0]),
@@ -366,12 +375,12 @@ def main(sample_id, fastq_pair, trim_range, trim_opts, phred, adapters_file,
         "MINLEN:{}".format(trim_opts[3]),
         "TOPHRED33",
         "-trimlog",
-        "/tmp/{}_trimlog.txt".format(sample_id)
+        logfile
     ]
 
     logger.debug("Running trimmomatic subprocess with command: {}".format(cli))
 
-    p = subprocess.Popen(cli, stdout=PIPE, stderr=PIPE, shell=False)
+    p = subprocess.Popen(cli, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate()
 
     # Attempt to decode STDERR output from bytes. If unsuccessful, coerce to
@@ -388,7 +397,7 @@ def main(sample_id, fastq_pair, trim_range, trim_opts, phred, adapters_file,
     logger.info("Finished trimmomatic with return code: {}".format(
         p.returncode))
 
-    trimmomatic_log("/tmp/{}_trimlog.txt".format(sample_id), sample_id)
+    trimmomatic_log(logfile, sample_id)
 
     if p.returncode == 0 and os.path.exists("{}_1_trim.fastq.gz".format(
             SAMPLE_ID)):
