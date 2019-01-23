@@ -181,7 +181,7 @@ class Seqsero2Reads(Process):
         self.directives = {
             "seqsero2_reads": {
                 "cpus": 1,
-                "memory": "{ 1.GB * task.cpus * task.attempt }",
+                "memory": "{ 1.GB * task.attempt }",
                 "container": "ummidock/seqsero2",
                 "version": "alpha-test-1",
                 "cache": "false",
@@ -210,7 +210,7 @@ class Seqsero2Assembly(Process):
         self.directives = {
             "seqsero2_assembly": {
                 "cpus": 1,
-                "memory": "{ 1.GB * task.cpus * task.attempt }",
+                "memory": "{ 1.GB * task.attempt }",
                 "container": "ummidock/seqsero2",
                 "version": "alpha-test-1",
                 "cache": "false",
@@ -255,7 +255,49 @@ class StxSeqtypingReads(Process):
                 "memory": "{ 1.GB * task.cpus * task.attempt }",
                 "container": "ummidock/seq_typing",
                 "version": "2.2-01",
-                "cache": "false",
+                "cache": "true",
+                "scratch": "true"
+            }
+        }
+
+
+class SeqtypingReads(Process):
+    """seq_typing.py for reads process template interface
+
+    This process is set with:
+
+        - ``input_type``: fastq
+        - ``output_type``: None
+        - ``ptype``: typing
+    """
+
+    def __init__(self, **kwargs):
+
+        super().__init__(**kwargs)
+
+        self.input_type = "fastq"
+        self.output_type = None
+
+        self.params = {
+            "stx2covered": {
+                "default": 'null',
+                "description": "Minimal percentage of sequence covered to consider "
+                               "extra stx2 subtypes (value between [0, 100]) (default: 100)."
+            },
+            "stx2identity": {
+                "default": 'null',
+                "description": "Minimal sequence identity to consider extra stx2 "
+                               "subtypes (value between [0, 100]) (default: 99.5)."
+            }
+        }
+
+        self.directives = {
+            "seqtyping_reads": {
+                "cpus": 4,
+                "memory": "{ 1.GB * task.cpus * task.attempt }",
+                "container": "ummidock/seq_typing",
+                "version": "2.2-01",
+                "cache": "true",
                 "scratch": "true"
             }
         }

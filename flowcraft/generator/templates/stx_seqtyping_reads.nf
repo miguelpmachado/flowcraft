@@ -1,11 +1,10 @@
-stx2covered = ""
-stx2identity = ""
-
 if ( params.stx2covered{{ param_id }} ){
   if ( ! params.stx2covered{{ param_id }}.toString().isNumber() ){
     exit 1, "--'stx2covered{{ param_id }}' parameter must be a number. Provided value: '${params.stx2covered{{ param_id }}}'"
   }
   stx2covered = "--stx2covered ${params.stx2covered{{ param_id }}}"
+} else {
+  stx2covered = ""
 }
 
 if ( params.stx2identity{{ param_id }} ){
@@ -13,6 +12,8 @@ if ( params.stx2identity{{ param_id }} ){
     exit 1, "--'stx2identity{{ param_id }}' parameter must be a number. Provided value: '${params.stx2identity{{ param_id }}}'"
   }
   stx2identity = "--stx2identity ${params.stx2identity{{ param_id }}}"
+} else {
+  stx2identity = ""
 }
 
 process stx_seqtyping_reads_{{ pid }} {
