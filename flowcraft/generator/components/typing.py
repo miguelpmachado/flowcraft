@@ -238,14 +238,14 @@ class StxSeqtypingReads(Process):
 
         self.params = {
             "stx2covered": {
-                "default": 'null',
+                "default": '100',
                 "description": "Minimal percentage of sequence covered to consider "
-                               "extra stx2 subtypes (value between [0, 100]) (default: 100)."
+                               "extra stx2 subtypes (value between [0, 100])."
             },
             "stx2identity": {
-                "default": 'null',
+                "default": '99.5',
                 "description": "Minimal sequence identity to consider extra stx2 "
-                               "subtypes (value between [0, 100]) (default: 99.5)."
+                               "subtypes (value between [0, 100])."
             }
         }
 
@@ -279,15 +279,78 @@ class SeqtypingReads(Process):
         self.output_type = None
 
         self.params = {
-            "stx2covered": {
+            "org": {
                 "default": 'null',
-                "description": "Minimal percentage of sequence covered to consider "
-                               "extra stx2 subtypes (value between [0, 100]) (default: 100)."
+                "description": "Need to use either 'org' or 'reference' parameter. "
+                               "Organism option with reference sequences provided "
+                               "together with seq_typing.py for typing "
+                               "('seqtyping/reference_sequences/' folder). "
+                               "Some options: ['Escherichia coli', 'Haemophilus influenzae',"
+                               "'GBS sero', 'GBS pili', 'GBS surf']. "
+                               "See https://github.com/B-UMMI/seq_typing for more "
+                               "information."
             },
-            "stx2identity": {
+            "reference": {
                 "default": 'null',
-                "description": "Minimal sequence identity to consider extra stx2 "
-                               "subtypes (value between [0, 100]) (default: 99.5)."
+                "description": "Need to use either 'org' or 'reference' parameter. "
+                               "Path to reference sequences file. If more "
+                               "than one file is passed, a type for each file will be "
+                               "determined. Give the files name in the same order that "
+                               "the type must be determined."
+            },
+            "type_separator": {
+                "default": '_',
+                "description": "Last single character separating the general sequence "
+                               "header from the last part containing the type"
+            },
+            "extra_seq": {
+                "default": 'null',
+                "description": "Sequence length added to both ends of target sequences "
+                               "(usefull to improve reads mapping to the target one) "
+                               "that will be trimmed in ReMatCh outputs "
+                               "(default when not using --org: 0)"
+            },
+            "min_cov_presence": {
+                "default": 'null',
+                "description": "Reference position minimum coverage depth to consider "
+                               "the position to be present in the sample "
+                               "(default when not using --org: 5)"
+            },
+            "min_cov_call": {
+                "default": 'null',
+                "description": "Reference position minimum coverage depth to perform a "
+                               "base call (default when not using --org: 10)"
+            },
+            "min_gene_coverage": {
+                "default": 'null',
+                "description": "Minimum percentage of target reference sequence "
+                               "covered to consider a sequence to be present (value "
+                               "between [0, 100]) (default when not using --org: 60)"
+            },
+            "min_depth_coverage": {
+                "default": '2',
+                "description": "Minimum depth of coverage of target reference sequence "
+                               "to consider a sequence to be present"
+            },
+            "min_gene_identity": {
+                "default": '80',
+                "description": "Minimum percentage of identity of reference sequence "
+                               "covered to consider a gene to be present (value "
+                               "between [0, 100]). One INDEL will be considered as one "
+                               "difference."
+            },
+            "bowtie_algo": {
+                "default": '--very-sensitive-local',
+                "description": "Bowtie2 alignment mode. It can be an end-to-end "
+                               "alignment (unclipped alignment) or local alignment "
+                               "(soft clipped alignment). Also, can choose between "
+                               "fast or sensitive alignments. Please check Bowtie2 "
+                               "manual for extra information: "
+                               "http://bowtie-bio.sourceforge.net/bowtie2/index.shtml ."
+            },
+            "not_remove_consensus": {
+                "default": 'true',
+                "description": "Do not remove ReMatCh consensus sequences"
             }
         }
 
@@ -296,7 +359,7 @@ class SeqtypingReads(Process):
                 "cpus": 4,
                 "memory": "{ 1.GB * task.cpus * task.attempt }",
                 "container": "ummidock/seq_typing",
-                "version": "2.2-01",
+                "version": "dev",
                 "cache": "true",
                 "scratch": "true"
             }

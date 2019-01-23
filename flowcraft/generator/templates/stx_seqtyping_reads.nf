@@ -1,20 +1,12 @@
-if ( params.stx2covered{{ param_id }} ){
-  if ( ! params.stx2covered{{ param_id }}.toString().isNumber() ){
-    exit 1, "--'stx2covered{{ param_id }}' parameter must be a number. Provided value: '${params.stx2covered{{ param_id }}}'"
-  }
-  stx2covered = "--stx2covered ${params.stx2covered{{ param_id }}}"
-} else {
-  stx2covered = ""
+if ( ! params.stx2covered{{ param_id }}.toString().isNumber() ){
+  exit 1, "--'stx2covered{{ param_id }}' parameter must be a number. Provided value: '${params.stx2covered{{ param_id }}}'"
 }
 
-if ( params.stx2identity{{ param_id }} ){
-  if ( ! params.stx2identity{{ param_id }}.toString().isNumber() ){
-    exit 1, "--'stx2identity{{ param_id }}' parameter must be a number. Provided value: '${params.stx2identity{{ param_id }}}'"
-  }
-  stx2identity = "--stx2identity ${params.stx2identity{{ param_id }}}"
-} else {
-  stx2identity = ""
+
+if ( ! params.stx2identity{{ param_id }}.toString().isNumber() ){
+  exit 1, "--'stx2identity{{ param_id }}' parameter must be a number. Provided value: '${params.stx2identity{{ param_id }}}'"
 }
+
 
 process stx_seqtyping_reads_{{ pid }} {
     // Send POST request to platform
@@ -44,7 +36,7 @@ process stx_seqtyping_reads_{{ pid }} {
     report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'stx_type_seqtyping_reads','value':'NA','table':'typing'}]}]}"
 
     {
-      ecoli_stx_subtyping.py reads -f $fastq --org stx subtyping -o ./ -j $task.cpus $stx2covered $stx2identity
+      ecoli_stx_subtyping.py reads -f $fastq --org stx subtyping -o ./ -j $task.cpus --stx2covered ${params.stx2covered{{ param_id }}} --stx2identity ${params.stx2identity{{ param_id }}}
     } || {
       exit_code=\$?
     }

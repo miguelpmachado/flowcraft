@@ -32,13 +32,8 @@ if ( params.reference{{ param_id }} ){
 }
 
 
-if ( params.type_separator{{ param_id }} ){
-  if ( params.type_separator{{ param_id }}.toString().size() != 1 ){
-    exit 1, "--type_separator{{ param_id }} parameter must be a single character. Provided value: '${params.type_separator{{ param_id }}}'"
-  }
-  type_separator = "--typeSeparator ${params.type_separator{{ param_id }}}"
-} else {
-  type_separator = ""
+if ( params.type_separator{{ param_id }}.toString().size() != 1 ){
+  exit 1, "--type_separator{{ param_id }} parameter must be a single character. Provided value: '${params.type_separator{{ param_id }}}'"
 }
 
 
@@ -82,33 +77,18 @@ if ( params.min_gene_coverage{{ param_id }} ){
 }
 
 
-if ( params.min_depth_coverage{{ param_id }} ){
-  if ( ! params.min_depth_coverage{{ param_id }}.toString().isNumber() ){
-    exit 1, "--min_depth_coverage{{ param_id }} parameter must be a number. Provided value: '${params.min_depth_coverage{{ param_id }}}'"
-  }
-  min_depth_coverage = "--minDepthCoverage ${params.min_depth_coverage{{ param_id }}}"
-} else {
-  min_depth_coverage = ""
+if ( ! params.min_depth_coverage{{ param_id }}.toString().isNumber() ){
+  exit 1, "--min_depth_coverage{{ param_id }} parameter must be a number. Provided value: '${params.min_depth_coverage{{ param_id }}}'"
 }
 
 
-if ( params.min_gene_identity{{ param_id }} ){
-  if ( ! params.min_gene_identity{{ param_id }}.toString().isNumber() ){
-    exit 1, "--min_gene_identity{{ param_id }} parameter must be a number. Provided value: '${params.min_gene_identity{{ param_id }}}'"
-  }
-  min_gene_identity = "--minGeneIdentity ${params.min_gene_identity{{ param_id }}}"
-} else {
-  min_gene_identity = ""
+if ( ! params.min_gene_identity{{ param_id }}.toString().isNumber() ){
+  exit 1, "--min_gene_identity{{ param_id }} parameter must be a number. Provided value: '${params.min_gene_identity{{ param_id }}}'"
 }
 
 
-if ( params.bowtie_algo{{ param_id }} ){
-  if ( params.bowtie_algo{{ param_id }}.toString().split(' ').size() != 1 ){
-    exit 1, "--bowtie_algo{{ param_id }} parameter must only have one alignment mode. Provided value: '${params.bowtie_algo{{ param_id }}}'"
-  }
-  bowtie_algo = "--bowtieAlgo=\'${params.bowtie_algo{{ param_id }}}\'"
-} else {
-  bowtie_algo = ""
+if ( params.bowtie_algo{{ param_id }}.toString().split(' ').size() != 1 ){
+  exit 1, "--bowtie_algo{{ param_id }} parameter must only have one alignment mode. Provided value: '${params.bowtie_algo{{ param_id }}}'"
 }
 
 
@@ -145,7 +125,7 @@ process seqtyping_reads_{{ pid }} {
     report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'type_${header_name}_seqtyping_reads','value':'NA','table':'typing'}]}]}"
 
     {
-      seq_typing.py reads -f $fastq $org $reference -o ./ -j $task.cpus $type_separator $extra_seq $min_cov_presence $min_cov_call $min_gene_coverage $min_depth_coverage $min_gene_identity $bowtie_algo $not_remove_consensus
+      seq_typing.py reads -f $fastq $org $reference -o ./ -j $task.cpus --typeSeparator ${params.type_separator{{ param_id }}} $extra_seq $min_cov_presence $min_cov_call $min_gene_coverage --minDepthCoverage ${params.min_depth_coverage{{ param_id }}} --minGeneIdentity ${params.min_gene_identity{{ param_id }}} --bowtieAlgo=\'${params.bowtie_algo{{ param_id }}}\' $not_remove_consensus
     } || {
       exit_code=\$?
     }
