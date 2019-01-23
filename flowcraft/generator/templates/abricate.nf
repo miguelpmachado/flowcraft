@@ -2,9 +2,9 @@ if ( params.abricateDataDir{{ param_id }} ){
     if ( !file(params.abricateDataDir{{ param_id }}).exists() ){
         exit 1, "'abricateDataDir{{ param_id }}' data directory was not found: '${params.abricateDatabases{{ param_id }}}'"
     }
-    dataDirOpt = "--datadir ${params.abricateDataDir{{ param_id }}}"
+    dataDirOpt_{{ pid }} = "--datadir ${params.abricateDataDir{{ param_id }}}"
 } else {
-    dataDirOpt = ""
+    dataDirOpt_{{ pid }} = ""
 }
 
 if ( !params.abricateMinId{{ param_id }}.toString().isNumber() ){
@@ -40,7 +40,7 @@ process abricate_{{ pid }} {
     """
     {
         # Run abricate
-        abricate $dataDirOpt --minid $min_id --mincov $min_cov --db $db $assembly > ${sample_id}_abr_${db}.tsv
+        abricate $dataDirOpt_{{ pid }} --minid $min_id --mincov $min_cov --db $db $assembly > ${sample_id}_abr_${db}.tsv
         echo pass > .status
     } || {
         echo fail > .status

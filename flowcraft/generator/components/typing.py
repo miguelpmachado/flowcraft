@@ -299,7 +299,7 @@ class SeqtypingReads(Process):
                                "the type must be determined."
             },
             "type_separator": {
-                "default": '_',
+                "default": '"_"',
                 "description": "Last single character separating the general sequence "
                                "header from the last part containing the type"
             },
@@ -340,7 +340,7 @@ class SeqtypingReads(Process):
                                "difference."
             },
             "bowtie_algo": {
-                "default": '--very-sensitive-local',
+                "default": '"--very-sensitive-local"',
                 "description": "Bowtie2 alignment mode. It can be an end-to-end "
                                "alignment (unclipped alignment) or local alignment "
                                "(soft clipped alignment). Also, can choose between "
@@ -349,7 +349,7 @@ class SeqtypingReads(Process):
                                "http://bowtie-bio.sourceforge.net/bowtie2/index.shtml ."
             },
             "not_remove_consensus": {
-                "default": 'true',
+                "default": 'false',
                 "description": "Do not remove ReMatCh consensus sequences"
             }
         }

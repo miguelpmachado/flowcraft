@@ -9,11 +9,11 @@ if ( params.org{{ param_id }} ){
   if ( params.org{{ param_id }}.toString().split(' ').size() != 2 ){
     exit 1, "--org{{ param_id }} parameter must have two words. Provided value: '${params.org{{ param_id }}}'"
   }
-  org = "--org ${params.org{{ param_id }}}"
-  header_name = "${params.org{{ param_id }}.toString().replaceFirst(/ /, "_")}"
+  org_{{ pid }} = "--org ${params.org{{ param_id }}}"
+  header_name_{{ pid }} = "${params.org{{ param_id }}.toString().replaceFirst(/ /, "_")}"
 } else {
-  org = ""
-  header_name = "reference"
+  org_{{ pid }} = ""
+  header_name_{{ pid }} = "reference"
 }
 
 
@@ -23,12 +23,12 @@ if ( params.reference{{ param_id }} ){
       exit 1, "The reference file ${entry} does not exist. Provided value:  '${params.reference{{ param_id }}}'"
     }
   }
-  reference = "--reference ${params.reference{{ param_id }}.tokenize().join(' ')}"
-  reference_files = Channel.fromPath(params.reference{{ param_id }}.tokenize()).buffer(size:params.reference{{ param_id }}.tokenize().size())
+  reference_{{ pid }} = "--reference ${params.reference{{ param_id }}.tokenize().join(' ')}"
+  reference_files_{{ pid }} = Channel.fromPath(params.reference{{ param_id }}.tokenize()).buffer(size:params.reference{{ param_id }}.tokenize().size())
 } else {
-  reference = ""
-  reference_files = Channel.create()
-  reference_files.bind( 'No reference file' )
+  reference_{{ pid }} = ""
+  reference_files_{{ pid }} = Channel.create()
+  reference_files_{{ pid }}.bind( 'No reference file' )
 }
 
 
@@ -41,9 +41,9 @@ if ( params.extra_seq{{ param_id }} ){
   if ( ! params.extra_seq{{ param_id }}.toString().isNumber() ){
     exit 1, "--{{ param_id }}extra_seq{{ param_id }} parameter must be a number. Provided value: '${params.extra_seq{{ param_id }}}'"
   }
-  extra_seq = "--extraSeq ${params.extra_seq{{ param_id }}}"
+  extra_seq _{{ pid }}= "--extraSeq ${params.extra_seq{{ param_id }}}"
 } else {
-  extra_seq = ""
+  extra_seq_{{ pid }} = ""
 }
 
 
@@ -51,9 +51,9 @@ if ( params.min_cov_presence{{ param_id }} ){
   if ( ! params.min_cov_presence{{ param_id }}.toString().isNumber() ){
     exit 1, "--min_cov_presence{{ param_id }} parameter must be a number. Provided value: '${params.min_cov_presence{{ param_id }}}'"
   }
-  min_cov_presence = "--minCovPresence ${params.min_cov_presence{{ param_id }}}"
+  min_cov_presence_{{ pid }} = "--minCovPresence ${params.min_cov_presence{{ param_id }}}"
 } else {
-  min_cov_presence = ""
+  min_cov_presence_{{ pid }} = ""
 }
 
 
@@ -61,9 +61,9 @@ if ( params.min_cov_call{{ param_id }} ){
   if ( ! params.min_cov_call{{ param_id }}.toString().isNumber() ){
     exit 1, "--min_cov_call{{ param_id }} parameter must be a number. Provided value: '${params.min_cov_call{{ param_id }}}'"
   }
-  min_cov_call = "--minCovCall ${params.min_cov_call{{ param_id }}}"
+  min_cov_call_{{ pid }} = "--minCovCall ${params.min_cov_call{{ param_id }}}"
 } else {
-  min_cov_call = ""
+  min_cov_call_{{ pid }} = ""
 }
 
 
@@ -71,9 +71,9 @@ if ( params.min_gene_coverage{{ param_id }} ){
   if ( ! params.min_gene_coverage{{ param_id }}.toString().isNumber() ){
     exit 1, "--min_gene_coverage{{ param_id }} parameter must be a number. Provided value: '${params.min_gene_coverage{{ param_id }}}'"
   }
-  min_gene_coverage = "--minGeneCoverage ${params.min_gene_coverage{{ param_id }}}"
+  min_gene_coverage_{{ pid }} = "--minGeneCoverage ${params.min_gene_coverage{{ param_id }}}"
 } else {
-  min_gene_coverage = ""
+  min_gene_coverage_{{ pid }} = ""
 }
 
 
@@ -92,7 +92,7 @@ if ( params.bowtie_algo{{ param_id }}.toString().split(' ').size() != 1 ){
 }
 
 
-not_remove_consensus = params.not_remove_consensus{{ param_id }} ? not_remove_consensus = "--doNotRemoveConsensus" : ""
+not_remove_consensus_{{ pid }} = params.not_remove_consensus{{ param_id }} ? "--doNotRemoveConsensus" : ""
 
 
 
@@ -102,11 +102,11 @@ process seqtyping_reads_{{ pid }} {
 
     tag { sample_id }
     errorStrategy { task.exitStatus == 120 ? 'ignore' : 'ignore' }
-    publishDir path: "results/typing/seqtyping_reads/${header_name}/${sample_id}/", mode: 'symlink', overwrite: true, pattern: 'seq_typing.report*'
+    publishDir path: "results/typing/seqtyping_reads/${header_name_{{ pid }}}/${sample_id}/", mode: 'symlink', overwrite: true, pattern: 'seq_typing.report*'
 
     input:
     set sample_id, file(fastq) from {{ input_channel }}
-    file reference_files
+    file reference_files_{{ pid }}
 
     output:
     file "seq_typing.report*"
@@ -122,10 +122,10 @@ process seqtyping_reads_{{ pid }} {
     echo \$version_str > .versions
 
     status='error'
-    report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'type_${header_name}_seqtyping_reads','value':'NA','table':'typing'}]}]}"
+    report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'type_${header_name_{{ pid }}}_seqtyping_reads','value':'NA','table':'typing'}]}]}"
 
     {
-      seq_typing.py reads -f $fastq $org $reference -o ./ -j $task.cpus --typeSeparator ${params.type_separator{{ param_id }}} $extra_seq $min_cov_presence $min_cov_call $min_gene_coverage --minDepthCoverage ${params.min_depth_coverage{{ param_id }}} --minGeneIdentity ${params.min_gene_identity{{ param_id }}} --bowtieAlgo=\'${params.bowtie_algo{{ param_id }}}\' $not_remove_consensus
+      seq_typing.py reads -f $fastq $org_{{ pid }} $reference_{{ pid }} -o ./ -j $task.cpus --typeSeparator ${params.type_separator{{ param_id }}} $extra_seq_{{ pid }} $min_cov_presence_{{ pid }} $min_cov_call_{{ pid }} $min_gene_coverage_{{ pid }} --minDepthCoverage ${params.min_depth_coverage{{ param_id }}} --minGeneIdentity ${params.min_gene_identity{{ param_id }}} --bowtieAlgo=\'${params.bowtie_algo{{ param_id }}}\' $not_remove_consensus_{{ pid }}
     } || {
       exit_code=\$?
     }
@@ -135,7 +135,7 @@ process seqtyping_reads_{{ pid }} {
 
       type_found=\$(cat seq_typing.report.txt)
 
-      report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'type_${header_name}_seqtyping_reads','value':'\$type_found','table':'typing'}]}]}"
+      report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'type_${header_name_{{ pid }}}_seqtyping_reads','value':'\$type_found','table':'typing'}]}]}"
     fi
 
     echo \$status > .status
