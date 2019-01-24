@@ -364,3 +364,72 @@ class SeqtypingReads(Process):
                 "scratch": "true"
             }
         }
+
+
+class SeqtypingAssembly(Process):
+    """seq_typing.py for assemblies process template interface
+
+    This process is set with:
+
+        - ``input_type``: fasta
+        - ``output_type``: None
+        - ``ptype``: typing
+    """
+
+    def __init__(self, **kwargs):
+
+        super().__init__(**kwargs)
+
+        self.input_type = "fasta"
+        self.output_type = None
+
+        self.params = {
+            "org": {
+                "default": 'null',
+                "description": "Need to use either 'org' or 'reference' parameter. "
+                               "Organism option with DB sequences files provided "
+                               "together with seq_typing.py for typing "
+                               "('seqtyping/reference_sequences/' folder). "
+                               "Some options: ['Escherichia coli', 'Haemophilus influenzae',"
+                               "'GBS sero', 'GBS pili', 'GBS surf']. "
+                               "See https://github.com/B-UMMI/seq_typing for more "
+                               "information."
+            },
+            "reference": {
+                "default": 'null',
+                "description": "Need to use either 'org' or 'reference' parameter. "
+                               "Path to DB sequences files. If more "
+                               "than one DB file is passed, a type for each file will be "
+                               "determined. Give the files name in the same order that "
+                               "the type must be determined."
+            },
+            "type_separator": {
+                "default": '"_"',
+                "description": "Last single character separating the general sequence "
+                               "header from the last part containing the type"
+            },
+            "min_gene_coverage": {
+                "default": 'null',
+                "description": "Minimum percentage of target reference sequence "
+                               "covered to consider a sequence to be present (value "
+                               "between [0, 100]) (default when not using --org: 60)"
+            },
+            "min_gene_identity": {
+                "default": '80',
+                "description": "Minimum percentage of identity of reference sequence "
+                               "covered to consider a gene to be present (value "
+                               "between [0, 100]). One INDEL will be considered as one "
+                               "difference."
+            }
+        }
+
+        self.directives = {
+            "seqtyping_reads": {
+                "cpus": 1,
+                "memory": "{ 1.GB * task.cpus * task.attempt }",
+                "container": "ummidock/seq_typing",
+                "version": "dev",
+                "cache": "true",
+                "scratch": "true"
+            }
+        }
