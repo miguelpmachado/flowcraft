@@ -4,7 +4,7 @@ IN_centre_{{ pid }} = Channel.value(params.centre{{ param_id }})
 IN_kingdom_{{ pid }} = Channel.value(params.kingdom{{ param_id }})
 
 // check if genus is provided or not
-genusVar = (params.genus{{ param_id }} == false) ? "" : "--usegenus --genus ${params.genus{{param_id}}} "
+genusVar_{{ pid }} = (params.genus{{ param_id }} == false) ? "" : "--usegenus --genus ${params.genus{{param_id}}} "
 
 process prokka_{{ pid }} {
 
@@ -29,7 +29,7 @@ process prokka_{{ pid }} {
     """
     {
         prokka --outdir $sample_id --cpus $task.cpus --centre ${centre} \
-        --compliant --kingdom ${kingdom} ${genusVar} --increment 10 $assembly
+        --compliant --kingdom ${kingdom} ${genusVar_{{ pid }}} --increment 10 $assembly
         echo pass > .status
     } || {
         echo fail > .status

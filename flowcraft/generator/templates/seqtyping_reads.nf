@@ -24,11 +24,12 @@ if ( params.reference{{ param_id }} ){
     }
   }
   reference_{{ pid }} = "--reference ${params.reference{{ param_id }}.tokenize().join(' ')}"
-  reference_files_{{ pid }} = Channel.fromPath(params.reference{{ param_id }}.tokenize()).buffer(size:params.reference{{ param_id }}.tokenize().size())
+  IN_reference_files_{{ pid }} = Channel.fromPath(params.reference{{ param_id }}.tokenize()).buffer(size:params.reference{{ param_id }}.tokenize().size())
 } else {
   reference_{{ pid }} = ""
-  reference_files_{{ pid }} = Channel.create()
-  reference_files_{{ pid }}.bind( 'No reference file' )
+  IN_reference_files_{{ pid }} = file('.reference_files_{{ pid }}.file', hidden: true)
+  IN_reference_files_{{ pid }}.text = 'No reference file'
+  IN_reference_files_{{ pid }} = Channel.fromPath(IN_reference_files_{{ pid }})
 }
 
 
@@ -92,7 +93,11 @@ if ( params.bowtie_algo{{ param_id }}.toString().split(' ').size() != 1 ){
 }
 
 
-not_remove_consensus_{{ pid }} = params.not_remove_consensus{{ param_id }} ? "--doNotRemoveConsensus" : ""
+if ( ! (params.not_remove_consensus{{ param_id }} instanceof Boolean) ){
+  exit 1, "--not_remove_consensus{{ param_id }} parameter must be true or false. Provided value: '${params.not_remove_consensus{{ param_id }}}'"
+} else {
+  not_remove_consensus_{{ pid }} = params.not_remove_consensus{{ param_id }} ? "--doNotRemoveConsensus" : ""
+}
 
 
 
@@ -106,7 +111,11 @@ process seqtyping_reads_{{ pid }} {
 
     input:
     set sample_id, file(fastq) from {{ input_channel }}
-    file reference_files_{{ pid }}
+    each file(reference_files) from IN_reference_files_{{ pid }}
+    val type_separator from Channel.value(params.type_separator{{ param_id }})
+    val min_depth_coverage from Channel.value(params.min_depth_coverage{{ param_id }})
+    val min_gene_identity from Channel.value(params.min_gene_identity{{ param_id }})
+    val bowtie_algo from Channel.value(params.bowtie_algo{{ param_id }})
 
     output:
     file "seq_typing.report*"
@@ -125,7 +134,11 @@ process seqtyping_reads_{{ pid }} {
     report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'${header_name_{{ pid }}}_seqtyping_reads','value':'NA','table':'typing'}]}]}"
 
     {
-      seq_typing.py reads -f $fastq $org_{{ pid }} $reference_{{ pid }} -o ./ -j $task.cpus --typeSeparator ${params.type_separator{{ param_id }}} $extra_seq_{{ pid }} $min_cov_presence_{{ pid }} $min_cov_call_{{ pid }} $min_gene_coverage_{{ pid }} --minDepthCoverage ${params.min_depth_coverage{{ param_id }}} --minGeneIdentity ${params.min_gene_identity{{ param_id }}} --bowtieAlgo=\'${params.bowtie_algo{{ param_id }}}\' $not_remove_consensus_{{ pid }}
+      seq_typing.py reads -f $fastq $org_{{ pid }} $reference_{{ pid }} -o ./ -j $task.cpus \
+                          --typeSeparator $type_separator $extra_seq_{{ pid }} $min_cov_presence_{{ pid }} \
+                          $min_cov_call_{{ pid }} $min_gene_coverage_{{ pid }} --minDepthCoverage $min_depth_coverage \
+                          --minGeneIdentity $min_gene_identity --bowtieAlgo=\'$bowtie_algo\' \
+                          $not_remove_consensus_{{ pid }}
     } || {
       exit_code=\$?
     }
@@ -144,5 +157,3 @@ process seqtyping_reads_{{ pid }} {
     exit \$exit_code
     """
 }
-
-{{ forks }}

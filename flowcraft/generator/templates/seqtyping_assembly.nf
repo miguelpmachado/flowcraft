@@ -24,11 +24,12 @@ if ( params.reference{{ param_id }} ){
     }
   }
   reference_{{ pid }} = "--blast ${params.reference{{ param_id }}.tokenize().join(' ')} --type nucl"
-  reference_files_{{ pid }} = Channel.fromPath(params.reference{{ param_id }}.tokenize()).buffer(size:params.reference{{ param_id }}.tokenize().size())
+  IN_reference_files_{{ pid }} = Channel.fromPath(params.reference{{ param_id }}.tokenize()).buffer(size:params.reference{{ param_id }}.tokenize().size())
 } else {
   reference_{{ pid }} = ""
-  reference_files_{{ pid }} = Channel.create()
-  reference_files_{{ pid }}.bind( 'No reference file' )
+  IN_reference_files_{{ pid }} = file('.reference_files_{{ pid }}.file', hidden: true)
+  IN_reference_files_{{ pid }}.text = 'No reference file'
+  IN_reference_files_{{ pid }} = Channel.fromPath(IN_reference_files_{{ pid }})
 }
 
 
@@ -62,7 +63,9 @@ process seqtyping_assembly_{{ pid }} {
 
     input:
     set sample_id, file(fasta) from {{ input_channel }}
-    file reference_files_{{ pid }}
+    each file(reference_files) from IN_reference_files_{{ pid }}
+    val type_separator from Channel.value(params.type_separator{{ param_id }})
+    val min_gene_identity from Channel.value(params.min_gene_identity{{ param_id }})
 
     output:
     file "seq_typing.report*"
@@ -81,7 +84,9 @@ process seqtyping_assembly_{{ pid }} {
     report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'${header_name_{{ pid }}}_seqtyping_assembly','value':'NA','table':'typing'}]}]}"
 
     {
-      seq_typing.py assembly -f $fasta $org_{{ pid }} $reference_{{ pid }} -o ./ -j $task.cpus --typeSeparator ${params.type_separator{{ param_id }}} $min_gene_coverage_{{ pid }} --minGeneIdentity ${params.min_gene_identity{{ param_id }}}
+      seq_typing.py assembly -f $fasta $org_{{ pid }} $reference_{{ pid }} -o ./ -j $task.cpus \
+                    --typeSeparator $type_separator $min_gene_coverage_{{ pid }} --minGeneIdentity $min_gene_identity
+
     } || {
       exit_code=\$?
     }
@@ -100,5 +105,3 @@ process seqtyping_assembly_{{ pid }} {
     exit \$exit_code
     """
 }
-
-{{ forks }}

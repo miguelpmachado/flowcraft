@@ -424,12 +424,12 @@ class SeqtypingAssembly(Process):
         }
 
         self.directives = {
-            "seqtyping_reads": {
+            "seqtyping_assembly": {
                 "cpus": 1,
                 "memory": "{ 1.GB * task.cpus * task.attempt }",
                 "container": "ummidock/seq_typing",
                 "version": "dev",
-                "cache": "true",
+                "cache": "false",
                 "scratch": "true"
             }
         }

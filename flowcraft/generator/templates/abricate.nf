@@ -1,6 +1,6 @@
 if ( params.abricateDataDir{{ param_id }} ){
     if ( !file(params.abricateDataDir{{ param_id }}).exists() ){
-        exit 1, "'abricateDataDir{{ param_id }}' data directory was not found: '${params.abricateDatabases{{ param_id }}}'"
+        exit 1, "'abricateDataDir{{ param_id }}' data directory was not found: '${params.abricateDataDir{{ param_id }}}'"
     }
     dataDirOpt_{{ pid }} = "--datadir ${params.abricateDataDir{{ param_id }}}"
 } else {
