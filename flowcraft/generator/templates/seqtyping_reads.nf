@@ -107,7 +107,7 @@ process seqtyping_reads_{{ pid }} {
 
     tag { sample_id }
     errorStrategy { task.exitStatus == 120 ? 'ignore' : 'ignore' }
-    publishDir path: "results/typing/seqtyping_reads/${header_name_{{ pid }}}/${sample_id}/", mode: 'symlink', overwrite: true, pattern: 'seq_typing.report*'
+    publishDir path: "results/typing/seqtyping/reads/${header_name_{{ pid }}}/seqtyping_reads_{{ pid }}/${sample_id}/", pattern: 'seq_typing.report*'
 
     input:
     set sample_id, file(fastq) from {{ input_channel }}

@@ -184,7 +184,6 @@ class Seqsero2Reads(Process):
                 "memory": "{ 1.GB * task.attempt }",
                 "container": "ummidock/seqsero2",
                 "version": "alpha-test-1",
-                "cache": "false",
                 "scratch": "true"
             }
         }
@@ -213,13 +212,13 @@ class Seqsero2Assembly(Process):
                 "memory": "{ 1.GB * task.attempt }",
                 "container": "ummidock/seqsero2",
                 "version": "alpha-test-1",
-                "cache": "false",
                 "scratch": "true"
             }
         }
 
 
-class StxSeqtypingReads(Process):
+# TODO: change seq_typing image tag
+class StxSeqtyping(Process):
     """ecoli_stx_subtyping.py for reads process template interface
 
     This process is set with:
@@ -250,17 +249,17 @@ class StxSeqtypingReads(Process):
         }
 
         self.directives = {
-            "stx_seqtyping_reads": {
-                "cpus": 4,
+            "stx_seqtyping": {
+                "cpus": 2,
                 "memory": "{ 1.GB * task.cpus * task.attempt }",
                 "container": "ummidock/seq_typing",
                 "version": "2.2-01",
-                "cache": "true",
                 "scratch": "true"
             }
         }
 
 
+# TODO: change seq_typing image tag
 class SeqtypingReads(Process):
     """seq_typing.py for reads process template interface
 
@@ -356,16 +355,16 @@ class SeqtypingReads(Process):
 
         self.directives = {
             "seqtyping_reads": {
-                "cpus": 4,
+                "cpus": 2,
                 "memory": "{ 1.GB * task.cpus * task.attempt }",
                 "container": "ummidock/seq_typing",
                 "version": "dev",
-                "cache": "true",
                 "scratch": "true"
             }
         }
 
 
+# TODO: change seq_typing image tag
 class SeqtypingAssembly(Process):
     """seq_typing.py for assemblies process template interface
 
@@ -429,7 +428,6 @@ class SeqtypingAssembly(Process):
                 "memory": "{ 1.GB * task.cpus * task.attempt }",
                 "container": "ummidock/seq_typing",
                 "version": "dev",
-                "cache": "false",
                 "scratch": "true"
             }
         }

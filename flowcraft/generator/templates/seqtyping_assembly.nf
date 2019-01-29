@@ -59,7 +59,7 @@ process seqtyping_assembly_{{ pid }} {
 
     tag { sample_id }
     errorStrategy { task.exitStatus == 120 ? 'ignore' : 'ignore' }
-    publishDir path: "results/typing/seqtyping_assembly/${header_name_{{ pid }}}/${sample_id}/", mode: 'symlink', overwrite: true, pattern: 'seq_typing.report*'
+    publishDir path: "results/typing/seqtyping/assembly/${header_name_{{ pid }}}/seqtyping_assembly_{{ pid }}/${sample_id}/", pattern: 'seq_typing.report*'
 
     input:
     set sample_id, file(fasta) from {{ input_channel }}
