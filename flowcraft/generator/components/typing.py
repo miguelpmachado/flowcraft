@@ -339,17 +339,28 @@ class SeqtypingReads(Process):
                                "difference."
             },
             "bowtie_algo": {
-                "default": '"--very-sensitive-local"',
+                "default": 'null',
                 "description": "Bowtie2 alignment mode. It can be an end-to-end "
                                "alignment (unclipped alignment) or local alignment "
                                "(soft clipped alignment). Also, can choose between "
                                "fast or sensitive alignments. Please check Bowtie2 "
                                "manual for extra information: "
-                               "http://bowtie-bio.sourceforge.net/bowtie2/index.shtml ."
+                               "http://bowtie-bio.sourceforge.net/bowtie2/index.shtml . "
+                               "(default when not using --org: '--very-sensitive-local')"
+            },
+            "max_num_map_loc": {
+                "default": 'null',
+                "description": "Maximum number of locations to which a read can map "
+                               "(sometimes useful when mapping against similar "
+                               "sequences) (default when not using --org: 1"
             },
             "not_remove_consensus": {
                 "default": 'false',
                 "description": "Do not remove ReMatCh consensus sequences"
+            },
+            "save_new_allele": {
+                "default": 'false',
+                "description": "Save the new allele found for the selected type"
             }
         }
 
@@ -419,6 +430,10 @@ class SeqtypingAssembly(Process):
                                "covered to consider a gene to be present (value "
                                "between [0, 100]). One INDEL will be considered as one "
                                "difference."
+            },
+            "saveNewAllele": {
+                "default": 'false',
+                "description": "Save the new allele found for the selected type"
             }
         }
 

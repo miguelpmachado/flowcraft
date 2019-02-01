@@ -53,6 +53,14 @@ if ( ! params.min_gene_identity{{ param_id }}.toString().isNumber() ){
 }
 
 
+if ( ! (params.save_new_allele{{ param_id }} instanceof Boolean) ){
+  exit 1, "--save_new_allele{{ param_id }} parameter must be true or false. Provided value: '${params.save_new_allele{{ param_id }}}'"
+} else {
+  save_new_allele{{ pid }} = params.save_new_allele{{ param_id }} ? "--saveNewAllele" : ""
+}
+
+
+
 process seqtyping_assembly_{{ pid }} {
     // Send POST request to platform
     {% include "post.txt" ignore missing %}
@@ -84,9 +92,10 @@ process seqtyping_assembly_{{ pid }} {
     report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'${header_name_{{ pid }}}_seqtyping_assembly','value':'NA','table':'typing'}]}]}"
 
     {
-      seq_typing.py assembly -f $fasta $org_{{ pid }} $reference_{{ pid }} -o ./ -j $task.cpus \
-                    --typeSeparator $type_separator $min_gene_coverage_{{ pid }} --minGeneIdentity $min_gene_identity
-
+      seq_typing.py assembly -f $fasta $org_{{ pid }} $reference_{{ pid }} \
+                    -s $sample_id -o ./ -j $task.cpus \
+                    --typeSeparator $type_separator $min_gene_coverage_{{ pid }} --minGeneIdentity $min_gene_identity \
+                    $save_new_allele{{ pid }}
     } || {
       exit_code=\$?
     }

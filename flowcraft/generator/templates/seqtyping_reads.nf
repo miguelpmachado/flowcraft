@@ -93,10 +93,27 @@ if ( params.bowtie_algo{{ param_id }}.toString().split(' ').size() != 1 ){
 }
 
 
+if ( params.max_num_map_loc{{ param_id }} ){
+  if ( ! params.max_num_map_loc{{ param_id }}.toString().isNumber() ){
+    exit 1, "--max_num_map_loc{{ param_id }} parameter must be a number. Provided value: '${params.max_num_map_loc{{ param_id }}}'"
+  }
+  max_num_map_loc{{ pid }} = "--maxNumMapLoc ${params.max_num_map_loc{{ param_id }}}"
+} else {
+  max_num_map_loc{{ pid }} = ""
+}
+
+
 if ( ! (params.not_remove_consensus{{ param_id }} instanceof Boolean) ){
   exit 1, "--not_remove_consensus{{ param_id }} parameter must be true or false. Provided value: '${params.not_remove_consensus{{ param_id }}}'"
 } else {
   not_remove_consensus_{{ pid }} = params.not_remove_consensus{{ param_id }} ? "--doNotRemoveConsensus" : ""
+}
+
+
+if ( ! (params.save_new_allele{{ param_id }} instanceof Boolean) ){
+  exit 1, "--save_new_allele{{ param_id }} parameter must be true or false. Provided value: '${params.save_new_allele{{ param_id }}}'"
+} else {
+  save_new_allele{{ pid }} = params.save_new_allele{{ param_id }} ? "--saveNewAllele" : ""
 }
 
 
@@ -134,11 +151,12 @@ process seqtyping_reads_{{ pid }} {
     report_str="{'tableRow':[{'sample':'${sample_id}','data':[{'header':'${header_name_{{ pid }}}_seqtyping_reads','value':'NA','table':'typing'}]}]}"
 
     {
-      seq_typing.py reads -f $fastq $org_{{ pid }} $reference_{{ pid }} -o ./ -j $task.cpus \
+      seq_typing.py reads -f $fastq $org_{{ pid }} $reference_{{ pid }} \
+                          -s $sample_id -o ./ -j $task.cpus \
                           --typeSeparator $type_separator $extra_seq_{{ pid }} $min_cov_presence_{{ pid }} \
                           $min_cov_call_{{ pid }} $min_gene_coverage_{{ pid }} --minDepthCoverage $min_depth_coverage \
-                          --minGeneIdentity $min_gene_identity --bowtieAlgo=\'$bowtie_algo\' \
-                          $not_remove_consensus_{{ pid }}
+                          --minGeneIdentity $min_gene_identity --bowtieAlgo=\'$bowtie_algo\' $max_num_map_loc{{ pid }} \
+                          $not_remove_consensus_{{ pid }} $save_new_allele{{ pid }}
     } || {
       exit_code=\$?
     }
