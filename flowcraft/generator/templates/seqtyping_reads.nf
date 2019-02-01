@@ -42,7 +42,7 @@ if ( params.extra_seq{{ param_id }} ){
   if ( ! params.extra_seq{{ param_id }}.toString().isNumber() ){
     exit 1, "--{{ param_id }}extra_seq{{ param_id }} parameter must be a number. Provided value: '${params.extra_seq{{ param_id }}}'"
   }
-  extra_seq _{{ pid }}= "--extraSeq ${params.extra_seq{{ param_id }}}"
+  extra_seq_{{ pid }} = "--extraSeq ${params.extra_seq{{ param_id }}}"
 } else {
   extra_seq_{{ pid }} = ""
 }
