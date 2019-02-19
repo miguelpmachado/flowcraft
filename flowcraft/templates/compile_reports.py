@@ -57,7 +57,7 @@ def main(reports, forks, dag, main_js):
             metadata["nfMetadata"]["forks"] = forks
     except json.JSONDecodeError:
         logging.warning("Could not parse versions JSON: {}".format(
-            dag))
+            forks))
 
     # Add tree DAG in JSON format
     try:
