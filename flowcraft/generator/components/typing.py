@@ -431,7 +431,7 @@ class SeqtypingAssembly(Process):
                                "between [0, 100]). One INDEL will be considered as one "
                                "difference."
             },
-            "saveNewAllele": {
+            "save_new_allele": {
                 "default": 'false',
                 "description": "Save the new allele found for the selected type"
             }
